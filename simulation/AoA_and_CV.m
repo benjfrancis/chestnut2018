@@ -2,6 +2,9 @@ A = imread('./football.png');
 %get image right side up
 A = fliplr(A);
 
+[B,map,alphaChannel] = imread('drone.png');
+
+
 %figure out size of playing field
 [cx,cy,cz] = size(A);
 
@@ -17,7 +20,7 @@ surf(xImage,yImage,zImage,...   %# Plot the surface
      'FaceColor','texturemap');
  
 %resize figure for capture
-figure('pos',[10 10 1280 720])
+figure('pos',[10 10 1920 1080])
 
 rotate3d on
 
@@ -29,8 +32,19 @@ for t = 1:160
      'FaceColor','texturemap');
     %keep plot for loop iteration
     hold on
-    plot3(drone(1), drone(2), drone(3), 'hexagram');
-
+    
+    %Plot Drone
+    xDrone = [drone(1)+3 drone(1)-3; drone(1)+3 drone(1)-3];      %# The x data for the image corners
+    yDrone = [drone(2)-2 drone(2)+2; drone(2)-2 drone(2)+2];      %# The y data for the image corners
+    zDrone = [drone(3)+2 drone(3)+2; drone(3)-2 drone(3)-2];            %# The z data for the image corners
+    surf( xDrone , yDrone , zDrone , 'Cdata', B , ...
+        'FaceColor','texturemap',                             ...
+        'EdgeColor','none',                                   ... 
+        'FaceAlpha','texture',                                ...
+        'AlphaData', alphaChannel);
+    
+    
+    hold on
     
     [ben(1), ben(2), ben(3)] = player(t,ben);
     angle = getAoA(ben,drone);
@@ -40,9 +54,16 @@ for t = 1:160
     %plot the new stripe
     xD = [(xguess-xerr) (xguess+xerr); (xguess-xerr) (xguess+xerr)];    %# The x data for the stripe
     yD = [-25 -25; 25 25];                                              %# The y data for the stripe
+    zD = [0.05 0.05; 0.05 0.05];                                            %# Position stripe so we can see it
+    surf(xD,yD,zD,'EdgeColor','none','FaceColor','yellow', 'FaceAlpha',0.5);
+    
+    b_size = 2+.5*rand();
+    xD = [(ben(1)-b_size) (ben(1)+b_size); (ben(1)-b_size) (ben(1)+b_size)];    %# The x data for the box
+    yD = [(ben(2)-b_size) (ben(2)-b_size); (ben(2)+b_size) (ben(2)+b_size)];    %# The y data for the box
     zD = [0.1 0.1; 0.1 0.1];                                            %# Position stripe so we can see it
-    surf(xD,yD,zD);
-    plot3(ben(1),ben(2),ben(3)+.5,'*');
+    surf(xD,yD,zD,'EdgeColor','red', 'FaceAlpha',0.5);
+    
+    plot3(ben(1),ben(2),ben(3)+.1,'*');
     xlim([-50,50]);
     ylim([-25,25]);
     %axis off;
@@ -57,7 +78,7 @@ for t = 1:160
 end
 
 %make video file
-v = VideoWriter('touchdown','MPEG-4');
+v = VideoWriter('touchdown_tracked','MPEG-4');
 
 %add frames to video
 open(v)
