@@ -43,6 +43,9 @@ for t = 1:160
     zD = [0.1 0.1; 0.1 0.1];                                            %# Position stripe so we can see it
     surf(xD,yD,zD);
     plot3(ben(1),ben(2),ben(3)+.5,'*');
+    xlim([-50,50]);
+    ylim([-25,25]);
+    %axis off;
     
     %pause(0.01);
     
