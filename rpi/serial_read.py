@@ -96,7 +96,7 @@ def player_pos(px, py, R, t):
 
 # Read the april tag data from the serial input for N data points
 cam = serial.Serial("/dev/cu.usbmodem1411", 115200)
-N = 2000; #for now total samples of tags+players, feel free to change this to somehting more precise
+N = 1000; #for now total samples of tags+players, feel free to change this to somehting more precise
 i = 0;
 raw_tags = [];
 raw_player = [];
