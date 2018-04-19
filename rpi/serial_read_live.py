@@ -2,10 +2,12 @@ import serial
 import csv
 import numpy as np
 import datetime
+import json
+import requests
 
 
 def pos(R, t):
-    C_tilde = R*(t)
+    C_tilde = R*(-t)
     out = (C_tilde.item(0), C_tilde.item(1), C_tilde.item(2))
     return out
 
@@ -49,9 +51,9 @@ def player_pos(px, py, R, t):
 
     H = K*RT
 
-    x_img = np.matrix([[px],
-                        [py],
-                        [1]])
+    x_img = np.matrix([[160 - px],
+                       [py],
+                       [1]])
 
     x_player = np.linalg.solve(H,x_img)
 
@@ -107,9 +109,9 @@ while(i < N):
 	tx 			= l[4]
 	ty 			= l[5]
 	tz 			= l[6]
-	rx 			= l[7]
+	rx 			= l[7] - np.pi
 	ry 			= l[8]
-	rz 			= l[9]
+	rz 			= -l[9]
 	tag_age 	= l[10]
 
 	R = make_R(rx, ry, rz)
@@ -119,6 +121,9 @@ while(i < N):
 
 	#print(position)
 	print(plr_pos)
+	data = {'x': str(plr_pos[0]), 'y': str(plr_pos[1])}
+	j = json.dumps(data)
+	resp = requests.post('http://silklab.fctn.io:1234/push', data=j)
 
 
 
