@@ -1,5 +1,11 @@
 import numpy as np
 
+# position calculation
+# 
+# Creates a rotation matrix from the three rotations and translations that the
+# openMV board has generated from the april tags in its image. We place the
+# in a coordinate system whos origin in the center of the april tag and whos
+# axes are aligned with those of the april tag.
 def pos(R, t):
     C_tilde = R*(-t)
     out = (C_tilde.item(0), C_tilde.item(1), C_tilde.item(2))
