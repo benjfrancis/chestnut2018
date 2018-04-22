@@ -1,7 +1,8 @@
 function GenerateKalmanFilt(data, mean, var, fig, subplotNum)
 s.A = 1;
 % Process noise
-%%% adjust this for better/worse results - guess and check
+%%%% adjust this Q for better/worse results - guess and check
+%%%% the smaller Q is, the more resistant to change it is
 s.Q = .4^2; %stdev^2
 % Define the voltimeter to measure the voltage itself:
 s.H = 1;

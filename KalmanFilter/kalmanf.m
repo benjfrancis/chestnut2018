@@ -46,6 +46,7 @@ else
 	s.P = s.A * s.P * s.A' + s.Q;
  
 	% Compute Kalman gain factor:
+    %%% smaller K == more resistant to noise
 	K = s.P*s.H'*inv(s.H*s.P*s.H'+s.R);
  
 	% Correction based on observation:

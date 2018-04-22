@@ -12,6 +12,7 @@ variancey = var(data(:,2));
 stand_devy = sqrt(variancey);
  
 for i = 11:length(data(:,1))
+    %%%%%%%% can edit the multiplier of the STD to adjust Kalman Filt
     if data(i,1) >= avgx+1*stand_devx || data(i,1) <= avgx-1*stand_devx
         data(i,1) = data((i-1),1);
     end
