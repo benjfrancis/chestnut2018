@@ -5,6 +5,9 @@ import transform as tf
 import datetime
 import json
 import requests
+import sys
+sys.path.insert(0, '../KalmanFilter/')
+from Kalman import *
 
 def msg_decode(line):
 
@@ -38,6 +41,17 @@ WIDTH = 4
 
 offsets = [[0, HEIGHT],[WIDTH,HEIGHT],[0,0],[WIDTH,0]]
 
+# taken from a dataset of small field - will likely have to change
+xVar = 247.486260975
+yVar = 805.731984567
+
+# left as per connor's suggestion
+xQ = pow(0.4, 2)
+yQ = pow(0.4, 2)
+
+sX = initKalman(xVar, xQ)
+sY = initKalman(yVar, yQ)
+
 while(i < N):
 	byte = cam.readline()
 	s = byte.decode("ascii")
@@ -52,7 +66,7 @@ while(i < N):
 		error += 1
 		continue
 
-	
+
 	player_x 	= l[0]
 	player_y 	= l[1]
 	player_age 	= l[2]
@@ -77,8 +91,17 @@ while(i < N):
 	if(0 <= tag_id <= 1):
 		plr_x = plr_pos[0] + offsets[tag_id][0]
 		plr_y = plr_pos[1] + offsets[tag_id][1]
-	data = {'x': str(plr_pos[0]), 'y': str(plr_pos[1])}
-	#data = {'x': str(plr_pos[0]), 'y': str(plr_pos[1]), 'color': '0'}
+
+	#data = {'x': str(plr_pos[0]), 'y': str(plr_pos[1])}
+	data = {'x': str(plr_pos[0]), 'y': str(plr_pos[1]), 'color': '0'}
+	j = json.dumps(data)
+	resp = requests.post('http://silklab.fctn.io:1234/push', data=j)
+
+
+	sX = kalmanIter(sX, plr_pos[0])
+	sY = kalmanIter(sY, plr_pos[1])
+
+	data = {'x': str(sX.x), 'y': str(sY.x), 'color': '1'}
 	j = json.dumps(data)
 	resp = requests.post('http://silklab.fctn.io:1234/push', data=j)
 
