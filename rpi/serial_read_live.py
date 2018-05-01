@@ -8,6 +8,7 @@ import requests
 import sys
 sys.path.insert(0, '../KalmanFilter/')
 from Kalman import *
+from time import sleep
 
 def msg_decode(line):
 
@@ -24,8 +25,6 @@ def msg_decode(line):
 	l[8] = float(l[8])
 	l[9] = float(l[9])
 	l[10] = int(l[10])
-
-	print(l)
 
 	return l
 
@@ -51,6 +50,11 @@ yQ = pow(0.4, 2)
 
 sX = initKalman(xVar, xQ)
 sY = initKalman(yVar, yQ)
+
+MOVEMENT_THRESH = 2
+
+pos_buffer = []
+i = 0
 
 while(i < N):
 	byte = cam.readline()
@@ -79,31 +83,45 @@ while(i < N):
 	rz 			= -l[9]
 	tag_age 	= l[10]
 
-	print(l)
-
 	R = tf.make_R(rx, ry, rz)
 	t = tf.make_t(tx, ty, tz)
 	position = tf.pos(R,t)
 	plr_pos = tf.player_pos(player_x,player_y,R,t)
 
 	#print(position)
-	print(plr_pos)
-	if(0 <= tag_id <= 1):
+	#print(plr_pos)
+	if(0 <= tag_id <= 3):
 		plr_x = plr_pos[0] + offsets[tag_id][0]
 		plr_y = plr_pos[1] + offsets[tag_id][1]
 
 	#data = {'x': str(plr_pos[0]), 'y': str(plr_pos[1])}
-	data = {'x': str(plr_pos[0]), 'y': str(plr_pos[1]), 'color': '0'}
+	data = {'x': str(plr_x), 'y': str(plr_y), 'color': '0'}
 	j = json.dumps(data)
 	resp = requests.post('http://silklab.fctn.io:1234/push', data=j)
 
+	if(plr_x <= pos_buff[0][i-1] - MOVEMENT_THRESH || plr_x >= pos_buff[0][i-1] + MOVEMENT_THRESH):
+		plr_x = pos_buff[0][i-1]
 
-	sX = kalmanIter(sX, plr_pos[0])
-	sY = kalmanIter(sY, plr_pos[1])
+	if(plr_y <= pos_buff[1][i-1] - MOVEMENT_THRESH || plr_y >= pos_buff[1][i-1] + MOVEMENT_THRESH):
+		plr_y = pos_buff[0][i-1]
 
-	data = {'x': str(sX.x), 'y': str(sY.x), 'color': '1'}
+	sX = kalmanIter(sX, plr_x)
+	sY = kalmanIter(sY, plr_y)
+	print(sX.x[0][0])
+	print(sY.x[0][0])
+
+	pos_buff[0][i] = sX.x[0][0]
+	pos_buff[1][i] = sY.x[0][0]
+
+	data = {'x': str(sX.x[0][0]), 'y': str(sY.x[0][0]), 'color': '1'}
 	j = json.dumps(data)
 	resp = requests.post('http://silklab.fctn.io:1234/push', data=j)
+
+	i = (i+1)%N
+
+	#sleep(0.01)
+
+
 
 
 

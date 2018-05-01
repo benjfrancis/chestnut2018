@@ -24,7 +24,7 @@ yVar = np.var(yData)
 yStd = np.std(yData)
 
 
-for i in range(11, len(xData)):
+for i in range(1, len(xData)):
     if xData[i] >= xAvg + xStd or xData[i] <= xAvg - xStd:
         xData[i] = xData[i-1]
     if yData[i] >= yAvg + yStd or yData[i] <= yAvg - yStd:
